@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Loading...</title>
+  <style>
+    body{
+      margin:0; min-height:100vh; display:grid; place-items:center;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      background: radial-gradient(900px 450px at 30% 20%, #ffe0ea, transparent 60%),
+                  radial-gradient(900px 450px at 70% 30%, #dff3ff, transparent 60%),
+                  #0b1020;
+      overflow:hidden;
+      color:white;
+    }
+    .wrap{ text-align:center; }
+    .heart{
+      width: 96px; height: 96px;
+      display:grid; place-items:center;
+      margin: 0 auto 14px;
+      animation: spin 900ms linear infinite;
+      filter: drop-shadow(0 16px 30px rgba(255,77,136,0.35));
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* “Lädt von Farbe auf” */
+    .fill{
+      width: 110px;
+      height: 10px;
+      background: rgba(255,255,255,0.18);
+      border-radius: 999px;
+      overflow:hidden;
+      margin: 0 auto;
+    }
+    .bar{
+      height:100%;
+      width: 0%;
+      background: linear-gradient(90deg, #ff4d88, #ffd1e3);
+      animation: load 900ms ease-out forwards;
+    }
+    @keyframes load { to { width: 100%; } }
+
+    .txt{ margin-top: 10px; opacity:0.9; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="heart" aria-hidden="true">
+      <!-- Herz als SVG -->
+      <svg width="96" height="96" viewBox="0 0 24 24" fill="none">
+        <path d="M12 21s-7-4.6-9.5-9C.3 8.5 2.2 5.5 5.4 5.1c1.7-.2 3.3.6 4.2 2 .9-1.4 2.5-2.2 4.2-2 3.2.4 5.1 3.4 2.9 6.9C19 16.4 12 21 12 21z"
+              fill="#ff4d88"/>
+      </svg>
+    </div>
+
+    <div class="fill"><div class="bar"></div></div>
+    <div class="txt">Einen Moment… </div>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const to = params.get("to") || "index.html";
+
+    // Nach 900ms weiter
+    setTimeout(() => {
+      window.location.href = to;
+    }, 900);
+  </script>
+</body>
+</html>

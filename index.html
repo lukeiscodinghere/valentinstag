@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Valentinstag 14. Februar</title>
+  <style>
+    :root { --pink:#ff4d88; --dark:#0f172a; }
+
+    body{
+      margin:0; min-height:100vh; display:grid; place-items:center;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      background: radial-gradient(1200px 500px at 20% 20%, #ffe0ea, transparent 60%),
+                  radial-gradient(900px 450px at 80% 30%, #dff3ff, transparent 60%),
+                  linear-gradient(180deg, #0b1020, #0a0f1c);
+      overflow:hidden;
+      color:#0b1020;
+    }
+
+    .card{
+      width:min(560px, 92vw);
+      background: rgba(255,255,255,0.92);
+      border-radius: 22px;
+      padding: 26px 22px;
+      box-shadow: 0 20px 70px rgba(0,0,0,0.35);
+      text-align:center;
+      position:relative;
+      z-index: 2;
+    }
+
+    h1{ margin:0 0 10px; font-size: 28px; }
+
+    .arena{
+      position: relative;
+      height: 140px;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      gap: 16px;
+      margin-top: 10px;
+      border-radius: 18px;
+      background: rgba(15,23,42,0.05);
+      overflow:hidden;
+    }
+
+    button{
+      border:0;
+      padding: 14px 18px;
+      border-radius: 14px;
+      font-size: 18px;
+      cursor:pointer;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.12);
+      transition: transform 160ms ease, box-shadow 160ms ease, font-size 160ms ease;
+      user-select:none;
+      touch-action: manipulation;
+      white-space:nowrap;
+    }
+
+    .yes-button{
+      background: var(--pink);
+      color:#fff;
+      z-index: 2;
+      transform-origin: center;
+    }
+
+    /* Wackeln ab dem 16. "Nein" */
+    @keyframes wiggle {
+      0%   { transform: rotate(0deg) scale(var(--yesScale, 1)); }
+      20%  { transform: rotate(-4deg) scale(var(--yesScale, 1)); }
+      40%  { transform: rotate(4deg)  scale(var(--yesScale, 1)); }
+      60%  { transform: rotate(-3deg) scale(var(--yesScale, 1)); }
+      80%  { transform: rotate(3deg)  scale(var(--yesScale, 1)); }
+      100% { transform: rotate(0deg)  scale(var(--yesScale, 1)); }
+    }
+    .yes-wiggle{
+      animation: wiggle 450ms ease-in-out infinite;
+    }
+
+    .no-button{
+      background:#eee;
+      color:#111;
+      position:absolute;
+      left: 62%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 3;
+    }
+
+    .tiny{
+      margin-top:10px;
+      font-size: 13px;
+      opacity: 0.7;
+    }
+
+    /* GIF Overlay: erscheint in der Nähe der Buttons */
+    .gif-overlay{
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      display: none;
+      z-index: 1;
+    }
+    .gif-overlay img{
+      position: absolute;
+      width: min(320px, 70vw);
+      border-radius: 16px;
+      box-shadow: 0 16px 60px rgba(0,0,0,0.30);
+      opacity: 0.98;
+    }
+
+    @keyframes popIn {
+      from { transform: scale(0.92); opacity: 0; }
+      to   { transform: scale(1); opacity: 1; }
+    }
+    .pop { animation: popIn 140ms ease-out; }
+  </style>
+</head>
+
+<body>
+  <div class="card">
+    <h1>Do you want to be my valentines date?</h1>
+
+    <div class="arena" id="arena">
+      <button class="yes-button" id="yesBtn">Ja</button>
+      <button class="no-button" id="noBtn">Nein</button>
+    </div>
+
+    <div class="tiny">Tipp: Du kannst nur einmal wählen…</div>
+  </div>
+
+  <!-- GIF Overlay -->
+  <div class="gif-overlay" id="gifOverlay">
+    <img id="catGif" alt="Meme Cat" />
+  </div>
+
+  <script>
+    // Button-Sprüche
+    let messageIndex = 0;
+    const messages = [
+      "Nein 🙃",
+      "Bist du sicher? 😳",
+      "Denk nochmal nach...",
+      "Letzte Chance 😭",
+      "Bitte? 🥺",
+      "Wirklich nicht?",
+      "einfach Ja sagen!",
+      "Dann kann man wohl nur ja sagen...",
+      "Dann ist die Option wohl klar..."
+    ];
+
+    // ============================================================
+    //   HIER DEINE GIPHY GIF-URLS EINFÜGEN (direkte .gif Links!)
+    //   Beispiel: https://media.giphy.com/media/XXXX/giphy.gif
+    // ============================================================
+    const catGifs = [
+      "https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExYzZ0NW9rNDYxcTFpbDZ0MmZ6ejYxZm1zamtvZDNvd3BreDE4ZXVvbCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/OHRF8LZis06OiPDJby/giphy.gif",
+      "https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExMnQ2OWdnMnc5ZW5ib25od2VtMXNreGs0NWFvdWVnNnRmOGQ1bDdzOCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/wr7oA0rSjnWuiLJOY5/giphy.gif",
+      "https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHluNDJjajRybG81bGxhcnphYWZ0dGx0MWY0N2VkcjRqNW81cTJwbiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/nR4L10XlJcSeQ/giphy.gif",
+      "https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3ajRwejMzazNidmQxYTczdGd1NDE2dXY1bTJ6cG1tdzA3MHY1eGM0eiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/9uwnYUDw342pq/giphy.gif",
+      "https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3cjB6Y3N4M3lieWpxbXBmZG1yMzU3cGM0M2NoZXNhOXR2dnEyYXh3YSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/pVXyJy2k7WO1n49bGg/giphy.gif",
+      "https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3cjB6Y3N4M3lieWpxbXBmZG1yMzU3cGM0M2NoZXNhOXR2dnEyYXh3YSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/fdiOoSR8omN5RO36Yo/giphy.gif",
+      "https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3YWI3a202OWNwdTFibW9jNXZzdmlxZXJocTltN2MycXNzNXY3amIxMSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/hXafx5jj9HVBe/giphy.gif",
+      "https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3YWI3a202OWNwdTFibW9jNXZzdmlxZXJocTltN2MycXNzNXY3amIxMSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/dCc5BxTlXKNWrj8Hsi/giphy.gif",
+      "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOGpseGJ0ZWthNHZydDRsa3Uwb3ExeGw4djZhOHA1NjlhaXd2OHlhcyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/ASvQ3A2Q7blzq/giphy.gif",
+      "https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3aXRjYnF4Y3F4dDQ1cnpiOHhkd3F4YjJkcjFhNTYxcGRsM2g5b21rciZlcD12MV9naWZzX3NlYXJjaCZjdD1n/oFvXciCA8px11faKJS/giphy.gif"
+      
+    ];
+
+    const arena = document.getElementById("arena");
+    const noButton = document.getElementById("noBtn");
+    const yesButton = document.getElementById("yesBtn");
+
+    const gifOverlay = document.getElementById("gifOverlay");
+    const catGif = document.getElementById("catGif");
+
+    let noCount = 0;
+    let yesScale = 1;
+    const maxGrowCount = 15;
+
+    // Rotation der GIFs
+    let gifIndex = 0;
+
+    function randBetween(min, max) { return Math.random() * (max - min) + min; }
+    function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+
+    function nextGifUrl() {
+      if (catGifs.length === 0) return "";
+      const url = catGifs[gifIndex % catGifs.length];
+      gifIndex++;
+      return url;
+    }
+
+    // GIF in der Nähe der Arena platzieren (um die Buttons herum)
+    function showGifAroundButtons() {
+      const url = nextGifUrl();
+      if (!url) return;
+
+      catGif.src = url;
+      gifOverlay.style.display = "block";
+
+      const a = arena.getBoundingClientRect();
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+
+      // Position: um die Arena herum (links/rechts/oben/unten),
+      // aber nicht über der Arena selbst.
+      const side = ["top", "right", "bottom", "left"][Math.floor(Math.random() * 4)];
+      const margin = 18;         // Abstand zur Arena
+      const jitter = 40;         // random Wackeln in der Position
+
+      // Annahme einer typischen GIF-Größe (für Platzierung)
+      const approxW = Math.min(320, vw * 0.7);
+      const approxH = approxW * 0.75;
+
+      let x, y;
+
+      if (side === "top") {
+        x = randBetween(a.left - 60, a.right - approxW + 60);
+        y = a.top - approxH - margin;
+      } else if (side === "bottom") {
+        x = randBetween(a.left - 60, a.right - approxW + 60);
+        y = a.bottom + margin;
+      } else if (side === "left") {
+        x = a.left - approxW - margin;
+        y = randBetween(a.top - 20, a.bottom - approxH + 20);
+      } else { // right
+        x = a.right + margin;
+        y = randBetween(a.top - 20, a.bottom - approxH + 20);
+      }
+
+      x += randBetween(-jitter, jitter);
+      y += randBetween(-jitter, jitter);
+
+      // Im Viewport halten
+      x = clamp(x, 10, vw - approxW - 10);
+      y = clamp(y, 10, vh - approxH - 10);
+
+      catGif.classList.remove("pop");
+      void catGif.offsetWidth;
+      catGif.classList.add("pop");
+
+      catGif.style.left = x + "px";
+      catGif.style.top  = y + "px";
+
+      // nach kurzer Zeit wieder ausblenden
+      clearTimeout(showGifAroundButtons._t);
+      showGifAroundButtons._t = setTimeout(() => {
+        gifOverlay.style.display = "none";
+      }, 1600);
+    }
+
+    function moveNoButtonInsideArena() {
+      const a = arena.getBoundingClientRect();
+      const b = noButton.getBoundingClientRect();
+      const pad = 10;
+
+      const maxX = a.width - b.width - pad;
+      const maxY = a.height - b.height - pad;
+
+      const x = randBetween(pad, Math.max(pad, maxX));
+      const y = randBetween(pad, Math.max(pad, maxY));
+
+      noButton.style.left = x + "px";
+      noButton.style.top = y + "px";
+      noButton.style.transform = "translate(0, 0)";
+    }
+
+    function updateYesBehavior() {
+      if (noCount <= maxGrowCount) {
+        yesScale = Math.min(yesScale + 0.08, 2.6);
+        yesButton.style.setProperty("--yesScale", yesScale);
+        yesButton.style.transform = `scale(${yesScale})`;
+        yesButton.style.boxShadow = "0 16px 40px rgba(255,77,136,0.35)";
+      } else {
+        yesButton.style.setProperty("--yesScale", yesScale);
+        yesButton.classList.add("yes-wiggle");
+      }
+    }
+
+    function handleNoHover() {
+      noCount++;
+
+      noButton.textContent = messages[messageIndex];
+      messageIndex = (messageIndex + 1) % messages.length;
+
+      updateYesBehavior();
+      showGifAroundButtons();
+      moveNoButtonInsideArena();
+    }
+
+    
+    
+    function handleYesClick() {
+      window.location.href = "loading.html?to=yes.html";
+    }
+
+    
+    function handleNoClick() {
+      window.location.href = "loading.html?to=no.html";
+    }
+
+    
+    noButton.addEventListener("mouseenter", handleNoHover);
+
+    noButton.addEventListener("click", handleNoClick);
+
+    yesButton.addEventListener("click", handleYesClick);
+
+    // Startposition einmal setzen
+    moveNoButtonInsideArena();
+  </script>
+</body>
+</html>
