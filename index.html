@@ -4,155 +4,179 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Valentinstag 14. Februar</title>
+
   <style>
-    :root { --pink:#ff4d88; --dark:#0f172a; }
+    :root { --pink:#ff4d88; --bg:#FFD8DF; }
 
     body{
-      margin:0; min-height:100vh; display:grid; place-items:center;
+      margin:0;
+      min-height:100vh;
       font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
-      background: radial-gradient(1200px 500px at 20% 20%, #ffe0ea, transparent 60%),
-                  radial-gradient(900px 450px at 80% 30%, #dff3ff, transparent 60%),
-                  linear-gradient(180deg, #0b1020, #0a0f1c);
+      background: var(--bg);
       overflow:hidden;
-      color:#0b1020;
+      color:#111;
     }
 
-    .card{
-      width:min(560px, 92vw);
-      background: rgba(255,255,255,0.92);
-      border-radius: 22px;
-      padding: 26px 22px;
-      box-shadow: 0 20px 70px rgba(0,0,0,0.35);
-      text-align:center;
-      position:relative;
-      z-index: 2;
-    }
-
-    h1{ margin:0 0 10px; font-size: 28px; }
-
-    .arena{
-      position: relative;
-      height: 140px;
+    .center{
+      position:fixed;
+      inset:0;
       display:flex;
+      flex-direction:column;
       justify-content:center;
       align-items:center;
-      gap: 16px;
-      margin-top: 10px;
-      border-radius: 18px;
-      background: rgba(15,23,42,0.05);
-      overflow:hidden;
+      gap: 18px;
+      text-align:center;
+      padding: 24px;
+      z-index: 3;
+      pointer-events:none;
+    }
+    .center > * { pointer-events:auto; }
+
+    h1{
+      margin:0;
+      font-size: clamp(36px, 4.5vw, 58px);
+      font-weight: 800;
+      line-height: 1.05;
+    }
+
+    .btn-row{
+      display:flex;
+      gap: 26px;
+      align-items:center;
+      justify-content:center;
+      min-height: 80px;
+      position: relative;
     }
 
     button{
       border:0;
-      padding: 14px 18px;
-      border-radius: 14px;
-      font-size: 18px;
+      padding: 18px 32px;
+      border-radius: 18px;
+      font-size: 22px;
+      font-weight: 700;
       cursor:pointer;
-      box-shadow: 0 10px 24px rgba(0,0,0,0.12);
-      transition: transform 160ms ease, box-shadow 160ms ease, font-size 160ms ease;
-      user-select:none;
-      touch-action: manipulation;
       white-space:nowrap;
+      user-select:none;
+      transition: transform .16s ease, box-shadow .16s ease;
+      box-shadow:
+        0 12px 24px rgba(0,0,0,.16),
+        0 2px 0 rgba(255,255,255,.4) inset;
     }
 
     .yes-button{
       background: var(--pink);
       color:#fff;
-      z-index: 2;
-      transform-origin: center;
+      transform-origin:center;
     }
 
-    /* Wackeln ab dem 16. "Nein" */
     @keyframes wiggle {
-      0%   { transform: rotate(0deg) scale(var(--yesScale, 1)); }
-      20%  { transform: rotate(-4deg) scale(var(--yesScale, 1)); }
-      40%  { transform: rotate(4deg)  scale(var(--yesScale, 1)); }
-      60%  { transform: rotate(-3deg) scale(var(--yesScale, 1)); }
-      80%  { transform: rotate(3deg)  scale(var(--yesScale, 1)); }
-      100% { transform: rotate(0deg)  scale(var(--yesScale, 1)); }
+      0% { transform: rotate(0) scale(var(--yesScale,1)); }
+      25%{ transform: rotate(-4deg) scale(var(--yesScale,1)); }
+      50%{ transform: rotate(4deg) scale(var(--yesScale,1)); }
+      75%{ transform: rotate(-3deg) scale(var(--yesScale,1)); }
+      100%{ transform: rotate(0) scale(var(--yesScale,1)); }
     }
     .yes-wiggle{
-      animation: wiggle 450ms ease-in-out infinite;
+      animation: wiggle .45s ease-in-out infinite;
     }
 
     .no-button{
-      background:#eee;
+      background:#f3f3f3;
       color:#111;
-      position:absolute;
-      left: 62%;
-      top: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 3;
     }
 
-    .tiny{
-      margin-top:10px;
-      font-size: 13px;
-      opacity: 0.7;
-    }
-
-    /* GIF Overlay: erscheint in der Nähe der Buttons */
-    .gif-overlay{
+    .no-free{
       position: fixed;
-      inset: 0;
-      pointer-events: none;
-      display: none;
-      z-index: 1;
+      z-index: 4;
+    }
+
+    /* Safe-Zone (Text + Buttons) */
+    .safe-zone{
+      position:fixed;
+      left:50%;
+      top:50%;
+      transform:translate(-50%,-50%);
+      width:min(720px,92vw);
+      height:260px;
+      pointer-events:none;
+      z-index:2;
+    }
+
+    /* Fixed GIF unter den Buttons */
+    .fixed-gif{
+      width: min(80px, 20vw);
+      border-radius: 16px;
+      box-shadow:0 10px 30px rgba(0,0,0,.14);
+      display:none;              /* erst nach 1 Sekunde */
+      margin-top: 10px;
+    }
+
+    .fixed-gif{
+  width: min(240px, 55vw);
+  border-radius: 16px;
+  box-shadow:0 10px 30px rgba(0,0,0,.14);
+  display:none;
+  margin-top: 10px;
+
+  opacity: 0;
+  transform: translateY(6px) scale(0.98);
+  transition: opacity 350ms ease, transform 350ms ease;
+}
+.fixed-gif.show{
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+    .gif-overlay{
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      display:none;
+      z-index:1;
     }
     .gif-overlay img{
-      position: absolute;
-      width: min(320px, 70vw);
-      border-radius: 16px;
-      box-shadow: 0 16px 60px rgba(0,0,0,0.30);
-      opacity: 0.98;
+      position:absolute;
+      width:min(320px,70vw);
+      border-radius:16px;
+      box-shadow:0 16px 60px rgba(0,0,0,.3);
     }
-
-    @keyframes popIn {
-      from { transform: scale(0.92); opacity: 0; }
-      to   { transform: scale(1); opacity: 1; }
-    }
-    .pop { animation: popIn 140ms ease-out; }
   </style>
 </head>
 
 <body>
-  <div class="card">
-    <h1>Do you want to be my valentines date?</h1>
 
-    <div class="arena" id="arena">
+  <div class="safe-zone" id="safeZone"></div>
+
+  <div class="center">
+    <h1>Do you want to be my valentine?</h1>
+
+    <div class="btn-row" id="btnRow">
       <button class="yes-button" id="yesBtn">Ja</button>
       <button class="no-button" id="noBtn">Nein</button>
     </div>
 
-    <div class="tiny">Tipp: Du kannst nur einmal wählen…</div>
+    <!-- FIXES GIF unter den Buttons (erscheint nach 1 Sekunde) -->
+    <img
+      id="fixedGif"
+      class="fixed-gif"
+      alt="Valentine Cat"
+      src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExczRhbm5oM2c3cXZkdzdnbXNwb3BocHpxZjBweW5nZzEyNWc2ZjhuOCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/Zl7u48zLVFgLpRwq6f/giphy.gif"
+    />
   </div>
 
-  <!-- GIF Overlay -->
   <div class="gif-overlay" id="gifOverlay">
-    <img id="catGif" alt="Meme Cat" />
+    <img id="catGif" />
   </div>
 
-  <script>
-    // Button-Sprüche
-    let messageIndex = 0;
-    const messages = [
-      "Nein 🙃",
-      "Bist du sicher? 😳",
-      "Denk nochmal nach...",
-      "Letzte Chance 😭",
-      "Bitte? 🥺",
-      "Wirklich nicht?",
-      "einfach Ja sagen!",
-      "Dann kann man wohl nur ja sagen...",
-      "Dann ist die Option wohl klar..."
-    ];
+<script>
+  let messageIndex = 0;
+  const messages = [
+    "Nein 🙃","Bist du sicher? 😳","Denk bitte nochmal darüber nach...", " Daneben! ",
+    "Letzte Chance 😭","Bitte? 🥺","Wirklich nicht?","Nicht schnell genug!", "Wirklich?","Neeeiiiinnnnn", "AAAaaaa"
+  ];
 
-    // ============================================================
-    //   HIER DEINE GIPHY GIF-URLS EINFÜGEN (direkte .gif Links!)
-    //   Beispiel: https://media.giphy.com/media/XXXX/giphy.gif
-    // ============================================================
-    const catGifs = [
+  /* >>> HIER GIFS EINFÜGEN <<< */
+  const catGifs = [
       "https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExYzZ0NW9rNDYxcTFpbDZ0MmZ6ejYxZm1zamtvZDNvd3BreDE4ZXVvbCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/OHRF8LZis06OiPDJby/giphy.gif",
       "https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExMnQ2OWdnMnc5ZW5ib25od2VtMXNreGs0NWFvdWVnNnRmOGQ1bDdzOCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/wr7oA0rSjnWuiLJOY5/giphy.gif",
       "https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHluNDJjajRybG81bGxhcnphYWZ0dGx0MWY0N2VkcjRqNW81cTJwbiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/nR4L10XlJcSeQ/giphy.gif",
@@ -162,152 +186,152 @@
       "https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3YWI3a202OWNwdTFibW9jNXZzdmlxZXJocTltN2MycXNzNXY3amIxMSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/hXafx5jj9HVBe/giphy.gif",
       "https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3YWI3a202OWNwdTFibW9jNXZzdmlxZXJocTltN2MycXNzNXY3amIxMSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/dCc5BxTlXKNWrj8Hsi/giphy.gif",
       "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOGpseGJ0ZWthNHZydDRsa3Uwb3ExeGw4djZhOHA1NjlhaXd2OHlhcyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/ASvQ3A2Q7blzq/giphy.gif",
+      "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExdXltc2Zlb3N3NHRwM3Q4bXRhcDZzaTRqNWF1ZDN3Z3k1cTdteGEwNCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/5yXllvXr83bY4/giphy.gif",
       "https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3aXRjYnF4Y3F4dDQ1cnpiOHhkd3F4YjJkcjFhNTYxcGRsM2g5b21rciZlcD12MV9naWZzX3NlYXJjaCZjdD1n/oFvXciCA8px11faKJS/giphy.gif"
-      
-    ];
+  ];
 
-    const arena = document.getElementById("arena");
-    const noButton = document.getElementById("noBtn");
-    const yesButton = document.getElementById("yesBtn");
+  const yesBtn = document.getElementById("yesBtn");
+  const noBtn  = document.getElementById("noBtn");
+  const gifOverlay = document.getElementById("gifOverlay");
+  const catGif = document.getElementById("catGif");
+  const safeZone = document.getElementById("safeZone");
+  const fixedGif = document.getElementById("fixedGif");
 
-    const gifOverlay = document.getElementById("gifOverlay");
-    const catGif = document.getElementById("catGif");
+  let noCount = 0;
+  let yesScale = 1;
+  let released = false;
+  let gifIndex = 0;
 
-    let noCount = 0;
-    let yesScale = 1;
-    const maxGrowCount = 15;
+  // Nach 20 mal bleibt Nein stehen
+  const noStopCount = 20;
 
-    // Rotation der GIFs
-    let gifIndex = 0;
+  function rand(min,max){ return Math.random()*(max-min)+min; }
+  function nextGif(){ return catGifs[gifIndex++ % catGifs.length]; }
 
-    function randBetween(min, max) { return Math.random() * (max - min) + min; }
-    function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+  function rectsOverlap(a,b){
+    return !(a.right < b.left || a.left > b.right || a.bottom < b.top || a.top > b.bottom);
+  }
 
-    function nextGifUrl() {
-      if (catGifs.length === 0) return "";
-      const url = catGifs[gifIndex % catGifs.length];
-      gifIndex++;
-      return url;
+  function getForbiddenRects(){
+    const rects = [];
+    rects.push(safeZone.getBoundingClientRect());
+
+    // fixedGif zählt erst als Sperrzone, wenn es sichtbar ist
+    if (fixedGif.style.display !== "none") {
+      const r = fixedGif.getBoundingClientRect();
+      // ein bisschen "Padding" um das GIF herum, damit nix knapp dran klebt
+      rects.push({
+        left: r.left - 12,
+        top: r.top - 12,
+        right: r.right + 12,
+        bottom: r.bottom + 12
+      });
     }
 
-    // GIF in der Nähe der Arena platzieren (um die Buttons herum)
-    function showGifAroundButtons() {
-      const url = nextGifUrl();
-      if (!url) return;
+    return rects;
+  }
 
-      catGif.src = url;
-      gifOverlay.style.display = "block";
-
-      const a = arena.getBoundingClientRect();
-      const vw = window.innerWidth;
-      const vh = window.innerHeight;
-
-      // Position: um die Arena herum (links/rechts/oben/unten),
-      // aber nicht über der Arena selbst.
-      const side = ["top", "right", "bottom", "left"][Math.floor(Math.random() * 4)];
-      const margin = 18;         // Abstand zur Arena
-      const jitter = 40;         // random Wackeln in der Position
-
-      // Annahme einer typischen GIF-Größe (für Platzierung)
-      const approxW = Math.min(320, vw * 0.7);
-      const approxH = approxW * 0.75;
-
-      let x, y;
-
-      if (side === "top") {
-        x = randBetween(a.left - 60, a.right - approxW + 60);
-        y = a.top - approxH - margin;
-      } else if (side === "bottom") {
-        x = randBetween(a.left - 60, a.right - approxW + 60);
-        y = a.bottom + margin;
-      } else if (side === "left") {
-        x = a.left - approxW - margin;
-        y = randBetween(a.top - 20, a.bottom - approxH + 20);
-      } else { // right
-        x = a.right + margin;
-        y = randBetween(a.top - 20, a.bottom - approxH + 20);
-      }
-
-      x += randBetween(-jitter, jitter);
-      y += randBetween(-jitter, jitter);
-
-      // Im Viewport halten
-      x = clamp(x, 10, vw - approxW - 10);
-      y = clamp(y, 10, vh - approxH - 10);
-
-      catGif.classList.remove("pop");
-      void catGif.offsetWidth;
-      catGif.classList.add("pop");
-
-      catGif.style.left = x + "px";
-      catGif.style.top  = y + "px";
-
-      // nach kurzer Zeit wieder ausblenden
-      clearTimeout(showGifAroundButtons._t);
-      showGifAroundButtons._t = setTimeout(() => {
-        gifOverlay.style.display = "none";
-      }, 1600);
+  function isAllowedRect(candidate){
+    const forbidden = getForbiddenRects();
+    for (const f of forbidden){
+      if (rectsOverlap(candidate, f)) return false;
     }
+    return true;
+  }
 
-    function moveNoButtonInsideArena() {
-      const a = arena.getBoundingClientRect();
-      const b = noButton.getBoundingClientRect();
-      const pad = 10;
+  function moveNo(){
+    const b = noBtn.getBoundingClientRect();
+    const maxTries = 60;
 
-      const maxX = a.width - b.width - pad;
-      const maxY = a.height - b.height - pad;
+    for(let i=0;i<maxTries;i++){
+      const x = rand(16, innerWidth - b.width - 16);
+      const y = rand(16, innerHeight - b.height - 16);
 
-      const x = randBetween(pad, Math.max(pad, maxX));
-      const y = randBetween(pad, Math.max(pad, maxY));
-
-      noButton.style.left = x + "px";
-      noButton.style.top = y + "px";
-      noButton.style.transform = "translate(0, 0)";
-    }
-
-    function updateYesBehavior() {
-      if (noCount <= maxGrowCount) {
-        yesScale = Math.min(yesScale + 0.08, 2.6);
-        yesButton.style.setProperty("--yesScale", yesScale);
-        yesButton.style.transform = `scale(${yesScale})`;
-        yesButton.style.boxShadow = "0 16px 40px rgba(255,77,136,0.35)";
-      } else {
-        yesButton.style.setProperty("--yesScale", yesScale);
-        yesButton.classList.add("yes-wiggle");
+      const cand = { left:x, top:y, right:x+b.width, bottom:y+b.height };
+      if (isAllowedRect(cand)){
+        noBtn.style.left = x+"px";
+        noBtn.style.top  = y+"px";
+        return;
       }
     }
 
-    function handleNoHover() {
-      noCount++;
+    // fallback
+    noBtn.style.left = "16px";
+    noBtn.style.top  = (innerHeight - b.height - 16) + "px";
+  }
 
-      noButton.textContent = messages[messageIndex];
-      messageIndex = (messageIndex + 1) % messages.length;
+  function showGif(){
+    const url = nextGif();
+    catGif.src = url;
+    gifOverlay.style.display = "block";
 
-      updateYesBehavior();
-      showGifAroundButtons();
-      moveNoButtonInsideArena();
+    // angenommene Größe für Platzierungs-Rect
+    const w = Math.min(320, innerWidth * 0.7);
+    const h = w * 0.75;
+
+    const maxTries = 60;
+    for(let i=0;i<maxTries;i++){
+      const x = rand(16, innerWidth - w - 16);
+      const y = rand(16, innerHeight - h - 16);
+
+      const cand = { left:x, top:y, right:x+w, bottom:y+h };
+      if (isAllowedRect(cand)){
+        catGif.style.left = x+"px";
+        catGif.style.top  = y+"px";
+        return;
+      }
     }
 
-    
-    
-    function handleYesClick() {
-      window.location.href = "loading.html?to=yes.html";
+    // fallback
+    catGif.style.left = "16px";
+    catGif.style.top  = "16px";
+  }
+
+  function handleNoHover(){
+    noCount++;
+    noBtn.textContent = messages[messageIndex++ % messages.length];
+
+    if(!released){
+      released = true;
+      noBtn.classList.add("no-free");
+      document.body.appendChild(noBtn);
     }
 
-    
-    function handleNoClick() {
-      window.location.href = "loading.html?to=no.html";
+    // nur bis 20 springt er weg
+    if(noCount < noStopCount) moveNo();
+
+    // GIFs sollen weiter in Dauerschleife kommen
+    showGif();
+
+    if(noCount <= 15){
+      yesScale = Math.min(yesScale+.08,2.6);
+      yesBtn.style.setProperty("--yesScale",yesScale);
+      yesBtn.style.transform = `scale(${yesScale})`;
+    } else {
+      yesBtn.classList.add("yes-wiggle");
     }
+  }
 
-    
-    noButton.addEventListener("mouseenter", handleNoHover);
+  noBtn.addEventListener("mouseenter", handleNoHover);
 
-    noButton.addEventListener("click", handleNoClick);
+  yesBtn.onclick = () => location.href="loading.html?to=yes.html";
+  noBtn.onclick  = () => location.href="loading.html?to=no.html";
 
-    yesButton.addEventListener("click", handleYesClick);
+  // >>> Nach 1 Sekunde fixes GIF unter den Buttons einblenden
+  setTimeout(() => {
+    fixedGif.style.display = "block";
+    requestAnimationFrame(() => {
+      fixedGif.classList.add("show");
+    });
+  }, 1000);
 
-    // Startposition einmal setzen
-    moveNoButtonInsideArena();
-  </script>
+  // Optional: bei Resize bleibt alles logisch
+  window.addEventListener("resize", () => {
+    // Wenn Nein schon frei ist und noch springen darf:
+    if (released && noCount < noStopCount) moveNo();
+    // Random-GIF bleibt sichtbar, wird nur ggf. später neu gesetzt beim nächsten Hover
+  });
+</script>
+
 </body>
 </html>
